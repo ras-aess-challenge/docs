@@ -22,7 +22,7 @@ Do not add an analysis worker, queue, or database until application code needs i
 Keep changes within their existing component repository. Run unit tests while
 iterating, then `./docker/test.sh` from the workspace root for integration changes.
 Use the [code structure proposal](code-structure.md) to migrate modules in small,
-testable steps. Both projects currently use flat modules and standard-library
+testable steps. The Python projects currently use flat modules and standard-library
 imports; the proposed `src/` packages have not been implemented yet.
 
 ## Extending Docker integration
@@ -34,7 +34,11 @@ imports; the proposed `src/` packages have not been implemented yet.
 5. Give persistent data a named volume; keep internal ports unpublished.
 6. Add integration assertions to the isolated test workflow, then document the actual service and its settings here.
 
-The parent workspace has no Git repository. `Network/` and `Robots-Network/` are
+The parent workspace has no Git repository. `Network/`, `Robots-Network/` and `web-app/` are
 independent repositories. Shared `docs/`, `docker/` and the root README must be
 versioned in a parent integration repository; component commits do not include
 them. No parent repository or submodules have been created automatically.
+
+Backend, network-bridge and executor-control have development source mounts.
+Dashboard remains a static build and requires an image rebuild after source edits;
+no host Node installation is needed. See [webapp.md](webapp.md).

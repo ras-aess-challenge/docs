@@ -63,3 +63,11 @@ Use `docker compose logs writer executor` for finite jobs and
 executor emits a JSON completion result with target ID, arrival coordinates and
 readings. This result is a simulation log, not durable assignment state. Logs
 rotate; archive results separately if they must be retained long term.
+
+## Webapp state
+
+The mqtt-data volume stores retained broker observations. Preserve it alongside
+the beacon volume when recreating containers. The gateway cache and executor-control
+mission state are in memory, so active mission control does not survive its restart.
+Retained MQTT missions may describe a prior process run. Restart executor-control
+only when navigation can safely stop; this is still simulation behavior.

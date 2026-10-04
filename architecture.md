@@ -1,9 +1,15 @@
 # Current system architecture
 
-The workspace contains two independent Python repositories connected by a shared
-Docker deployment. All imports are standard library or local modules. There is
-no SQL database, cache, message broker, background worker, scheduled job, external
-API, frontend, ML model or GPU dependency.
+The complete deployment now includes ROS Writer/Executor and Foxglove on the
+same MQTT network as the webapp. See [full ROS integration](ros-integration.md)
+for the current end-to-end flow. The details below describe the original Python
+network/CLI architecture, retained as an alternative mode.
+
+The workspace contains two Python repositories and a webapp repository connected
+by a shared Docker deployment. All imports are standard library or local modules. There is
+no SQL database, background worker, scheduled job, external AI API, ML model or
+GPU dependency. The integrated webapp adds a private MQTT broker, Node.js gateway,
+React dashboard and a Python mission-control adapter; see [webapp.md](webapp.md).
 
 ```mermaid
 flowchart LR
@@ -70,12 +76,13 @@ own unique Compose project, network, volume and ephemeral host port.
 
 ## Current mission semantics and future functionality
 
-A mission is presently the full beacon list. There is no independent Mission
-record, assignment, prioritization, analysis result, task action or completion
-acknowledgement. Executor polls the network rather than receiving an NGO push.
+For the legacy CLI, a mission is the full beacon list. The binary protocol has no assignment/analysis/completion message. The CLI
+executor polls the network. The dashboard now assigns a selected stored beacon
+through MQTT to executor-control, which reports in-memory pending/active/done or
+cancelled/failed state. There is no durable assignment store or AI planning.
 The nearest target can be old, including at the same coordinates as a new beacon.
 
-Future NGO dispatch and analysis should be explicit application services/functions
+Durable NGO dispatch and analysis should be explicit application services/functions
 with a defined protocol and mission state. Add containers only once their code
 requires separate processes. See [code-structure.md](code-structure.md) for the
 incremental proposal and [security.md](security.md) for present limitations.

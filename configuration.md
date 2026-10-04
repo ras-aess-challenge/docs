@@ -9,6 +9,7 @@ already exists, keep it: these commands replace its contents and rotate the key.
 ```bash
 # Generate the required secret using container Python:
 docker run --rm python:3.13-slim-bookworm@sha256:5024f48ba9441d4b13a95d3945abc6365538e3a31109833367a1923523c6efed python -c 'import secrets; print("SHARED_SECRET=" + secrets.token_hex(32))' > .env
+printf '%s\n' 'COMPOSE_FILE=compose.yaml:compose.ros.yaml' >> .env
 chmod 600 .env
 ```
 
@@ -23,6 +24,7 @@ values, so restrict daemon access. Configure external clients with the same key.
 | BIND_ADDRESS | 127.0.0.1 | Host address publishing relay |
 | STRONG_NODE_PUBLISHED_PORT | 65432 | Host relay port; 0 selects an ephemeral port in tests |
 | SOCKET_TIMEOUT | 5 | Socket connection/read timeout in seconds |
+| DASHBOARD_PUBLISHED_PORT | 5173 | Host dashboard HTTP and /ws port; 0 for ephemeral test port |
 | EXECUTOR_STEP_DELAY | 0.3 | Simulation navigation delay per step; 0 for fast tests |
 
 Compose configures `NETWORK_HOST=strong-node`, `NETWORK_PORT=65432` for robots;
@@ -38,3 +40,25 @@ to the generated file. Restart/recreate affected containers with `docker compose
 up -d` after changes; `restart` alone retains their existing environment.
 
 Read [security.md](security.md) before publishing the relay remotely.
+
+## Webapp integration
+
+See [webapp.md](webapp.md) for internal MQTT/HTTP addresses and same-origin WebSocket
+configuration. Compose passes no SHARED_SECRET to the browser or backend gateway;
+only the Python protocol peers and network bridge receive it. Runtime frontend
+settings are not Vite build settings. The default image derives /ws from its
+browser origin. Optional ROS-demo ports are controlled by ROS_DASHBOARD_PORT (5174)
+and FOXGLOVE_PUBLISHED_PORT (8765) in the standalone Compose file.
+
+## Full ROS deployment settings
+
+| Input | Default | Purpose |
+| --- | --- | --- |
+| COMPOSE_FILE | compose.yaml:compose.ros.yaml | Full mode; explicit -f selects alternatives |
+| FOXGLOVE_PUBLISHED_PORT | 8765 | Localhost Foxglove WebSocket |
+| ROS_BEACON_INTERVAL | 30 | Seconds between stored simulated writer beacons |
+
+The override sets `EXECUTOR_MODE=ros`, `SIM_ONA=0`, `NETWORK_BEACONS=1`,
+`MQTT_HOST=mosquitto`, `NETWORK_HOST=strong-node`. ROS receives the same private
+HMAC key; no secret is sent to the frontend. Workspace `.dockerignore` excludes
+secret files in the ROS build context; explicit COPY selects only source files.

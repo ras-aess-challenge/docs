@@ -4,12 +4,14 @@ From the workspace root:
 
 ```bash
 ./docker/test.sh
+./docker/test-ros.sh
 ```
 
 The script uses a unique `aess-test-*` Compose project, ephemeral host port and
 fresh volume; it does not clear or change the normal mission store. It builds
-both images, starts healthy servers, runs 8 robot tests (including the two real
-CLI processes and a bad-secret check), then 6 network tests. It recreates both
+both images, starts healthy servers, runs 11 robot tests (including the two real
+CLI processes, a bad-secret check and mission-control tests), then 6 network tests, 26 backend/integration tests, 15 dashboard tests and the
+existing ROS bridge/model tests. It recreates both
 servers and checks that both test beacons survived. It prints status/logs and
 removes only its temporary project and volume, including on failure. Any test
 failure returns a nonzero exit code.
@@ -41,5 +43,19 @@ records survive forced server recreation.
 
 A passing build alone is insufficient. Inspect service health and both finite
 job exit codes. Historical executed results are in [verification.md](verification.md).
-Physical robot motion, separate NGO dispatch, AI analysis and production load are
+Physical robot motion, AI analysis and production load are
 not covered because those implementations do not exist in this source.
+
+## Webapp tests
+
+The backend suite requires a real broker in docker/test.sh, so its MQTT test does
+not skip. The integrated test exercises dashboard HTML/assets, nginx /ws upgrades,
+MQTT forwarding, selected-beacon Python navigation/read and cancellation. It is
+not a browser rendering test. ROS bridge tests run without requiring a full ROS
+image. The separate full ROS integration is exercised by `test-ros.sh`.
+
+## Full ROS integration
+
+See [ros-integration.md](ros-integration.md) for the current complete deployment,
+Foxglove connection, executor ownership, health checks and mode switching. Run
+`./docker/test-ros.sh` from the workspace root for live ROS/Foxglove/mission checks.

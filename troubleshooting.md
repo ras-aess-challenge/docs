@@ -41,3 +41,22 @@ Check writer logs and its exit code. Delivery, authentication and server errors
 make the writer fail; Compose intentionally gates executor startup on successful
 writer completion. Correct the cause, then follow the rerun instructions in the
 [run guide](run-guide.md).
+
+## Full ROS integration
+
+See [ros-integration.md](ros-integration.md) for the current complete deployment,
+Foxglove connection, executor ownership, health checks and mode switching. Run
+`./docker/test-ros.sh` from the workspace root for live ROS/Foxglove/mission checks.
+
+### Dashboard WebSocket returns 502 after backend recreation
+
+The old nginx configuration resolved the backend only at startup. The current
+config uses Docker DNS (`127.0.0.11`, 10-second cache) and a variable upstream,
+and dashboard health proxies the backend's health endpoint. Rebuild dashboard
+if running an older image; wait for DNS/cache/readiness after replacing backend.
+
+### Foxglove responds 400 to a raw WebSocket check
+
+Bridge 3.5.0 expects the `foxglove.sdk.v1` subprotocol. Use a current Foxglove
+client or the provided test/probe offering SDK and legacy subprotocols. A plain
+HTTP GET to port 8765 is not a valid Foxglove health check.

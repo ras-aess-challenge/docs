@@ -14,11 +14,11 @@ before implementing the proposed src-package migration.
 | docker/.env.example | Documented configurable inputs |
 | docker/test.sh | Build, test and persistence verification in an isolated project |
 
-Both images use the official Python 3.13 slim Bookworm image pinned to the digest
+The Python images use the official Python 3.13 slim Bookworm image pinned to the digest
 recorded in their Dockerfiles. They install no additional system or Python
 packages. Python bytecode generation is disabled and stdout/stderr are unbuffered.
 Sources and tests are explicitly copied; secret files and existing mission data
-are excluded. Processes run as UID/GID 10001. Commands use the exec form and
+are excluded. Python processes run as UID/GID 10001. Commands use the exec form and
 Compose init forwards signals/reaps processes.
 
 | Service | Image | Command | Profile |
@@ -55,3 +55,19 @@ Use the [run guide](run-guide.md), [configuration reference](configuration.md)
 and [operations guide](operations.md) for executable commands. Upstream details:
 [Compose profiles](https://docs.docker.com/compose/how-tos/profiles/) and
 [startup dependencies](https://docs.docker.com/compose/how-tos/startup-order/).
+
+## Webapp extension
+
+The Python-only base stack also starts mosquitto, executor-control, backend, network-bridge
+and dashboard. Node/Mosquitto/nginx images are pinned by digest, Node packages
+use committed lockfiles, and nginx serves only built dashboard assets. New
+Dockerfiles are web-backend.Dockerfile, web-dashboard.Dockerfile and ros-tests.Dockerfile.
+The optional ROS demo uses compose.ros-demo.yaml and web-ros.Dockerfile.
+Frontend tests have bounded writable Vite temporary mounts; runtime roots remain
+read-only. See [webapp.md](webapp.md) for the full service table and lifecycle.
+
+## Full ROS integration
+
+See [ros-integration.md](ros-integration.md) for the current complete deployment,
+Foxglove connection, executor ownership, health checks and mode switching. Run
+`./docker/test-ros.sh` from the workspace root for live ROS/Foxglove/mission checks.

@@ -190,3 +190,27 @@ Acceptance checks: unchanged wire bytes and GPS/decay behavior, preserved volume
 identity/data, non-root containers, real client round trips, writer-before-executor
 ordering, and explicit failure on authentication/storage errors. Update these
 docs and the run guide with every entry-point or configuration change.
+
+## Webapp integration additions
+
+The webapp already separates backend/, dashboard/, shared/ and ros2/. Keep that
+component boundary. Move network-bridge-core.js and network-bridge.js into a
+backend integrations/python-network/ package in a later organizational change.
+mission_service.py belongs in the proposed aess_robots/transport and CLI layers;
+keep selection/mission lifecycle in a service rather than the HTTP handler.
+The adapter adds in-memory assignment/cancellation now; durable assignment remains
+a separate refactor. Three component repositories now share docker/ and docs/.
+
+## ROS integration boundaries
+
+Keep `ros2/nodes/` for ROS subscriptions/publishers, `ros2/domain/` for pure
+executor/mission/diagnostic logic, and `ros2/adapters/` for MQTT and authenticated
+network transport. Move node launch supervision into an explicit launch package
+only when these nodes are packaged; keep the current Docker entrypoint until then.
+Replace the current image-level `robot_client` source copy with an installable
+versioned `aess_robots` package as part of the package migration above.
+Extract validation/shared message types before splitting `ros_mqtt_bridge.py`;
+preserve MQTT topic shapes and binary protocol with compatibility tests.
+Add durable mission IDs/state and beacon retention as separate behavior changes,
+not as incidental folder moves. No source-tree relocation was necessary for this
+integration; this remains a staged refactor proposal.
