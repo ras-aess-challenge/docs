@@ -1,0 +1,17 @@
+Project: The Living Map (TSYP 14)
+Section: Implementation Plan
+
+To transition from the Phase 1 software architecture/simulation to a robust physical prototype for Phase 2, our development pipeline is partitioned into three discrete hardware sprints, culminating in a live stage demonstration.
+
+Sprint 1: Hardware Fabrication & ONA Bring-Up (Weeks 1-2)
+- Data Mesh: Solder and weatherproof the ESP32 + SX1276 LoRa "Strong Nodes". Establish the isolated WebSocket LAN connecting the ONA Gateway to the remote Command Post.
+- Beacon Engineering: 3D-print the 45-degree heavy-base stabilizing wedges. Adhere the EPC Gen2 Passive UHF tags and run VNA (Vector Network Analyzer) sweeps to test ground-plane detuning limits on concrete.
+- Chassis Modification: Mount gravity-fed, servo-actuated payload dispensers on the Writer and Executor platforms. Install the swept circularly-polarized UHF read/write antennas.
+
+Sprint 2: ROS 2 Hardware-in-the-Loop (HIL) Integration (Weeks 3-4)
+- Writer RTA Integration: Map the BehaviorTree.CPP safety invariants directly to the physical wheel-encoders. Validate that the Writer automatically halts and triggers the GPIO servo-drop mechanism strictly at 10m spatial intervals.
+- Bayesian Navigation: Integrate the physical UHF serial-reader output into the ROS 2 nav2_amcl pipeline. Conduct physical drift-tests: artificially force wheel-slip on the Executor chassis, read a tag, and measure the accuracy of its self-correction via the pose-prior injection.
+
+Sprint 3: System Validation & Stage Choreography (Week 5)
+- End-to-End Validation: Execute full-loop tests in a physical disconnected maze. The Writer explores, tags 3 distinct event types (Victim, Fire, Hazard), and hands off data to the ONA. The Executor is briefed, severs its wireless connection, and navigates purely via the physical Stigmergic mesh.
+- Stage Choreography (The "30-Second Kill"): We will conclude our Phase 2 presentation by proving the system's core thesis. The Writer robot will explore the stage and drop a marker. We will physically remove the battery from the Writer mid-run, instantly killing all active radios. Under zero-radio constraints, the heavy Executor will enter, read the physical mesh, zero its drift, and execute the rescue. This physically proves to the judges that robots die, but our map survives.

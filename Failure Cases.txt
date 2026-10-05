@@ -1,0 +1,20 @@
+Project: The Living Map (TSYP 14)
+Section: Failure Cases & Degradation Ladder
+
+Our architecture is designed under the assumption of catastrophic hardware and network failure. The system degrades gracefully rather than failing entirely.
+
+1. Catastrophic Writer Attrition (Robot Crushed)
+- System Detection Vector: Command Post ONA detects an MQTT heartbeat/telemetry timeout from the Writer robot.
+- Autonomous Mitigation (Stigmergic Survival): The intelligence survives 100% reconnaissance attrition. The Executor is deployed relying entirely on the pre-existing physical CRDT RFID mesh dropped prior to the Writer's destruction.
+
+2. Marker Destruction (Tag Crushed/Unreadable)
+- System Detection Vector: Executor's UHF swept antenna identifies a spatial gap > 10.0 meters between valid tags.
+- Autonomous Mitigation (Dead-Reckoning Fallback): Executor falls back to onboard AMCL and IMU odometry until the subsequent physical marker is acquired in the sweep zone.
+
+3. Odometry Drift / Wheel Slip
+- System Detection Vector: Internal SLAM coordinates severely mismatch the physical RFID tag readout.
+- Autonomous Mitigation (Bayesian Update): Executor halts, injects the physical tag's (X,Y) as an AMCL global pose-prior with a tight covariance matrix. The particle filter smoothly zeroes the SLAM drift over 2 seconds.
+
+4. Authentication/Security Breach
+- System Detection Vector: ONA Gateway receives a TCP payload with an invalid or missing HMAC-SHA256 signature.
+- Autonomous Mitigation (Packet Rejection): Payload is immediately dropped at the edge. This prevents malicious actors or rogue agents from injecting false triage coordinates into the Command Post database.

@@ -1,0 +1,14 @@
+Project: The Living Map (TSYP 14)
+Section: Technical Solution & Architecture
+
+Overview: Decoupling Memory from the Robot (Stigmergy)
+Standard multi-robot systems rely on continuous peer-to-peer (P2P) radio, which fails in GPS-denied, rubble-filled environments. Our technical solution embraces the TSYP 14 zero-radio constraint by implementing Stigmergy. A fleet of reconnaissance "Writers" explores the environment and drops unpowered, passive $0.15 UHF RFID tags, building an indestructible physical data mesh (The Living Map). Heavy "Executors" read this physical mesh to navigate to targets. 
+
+Core Architectural Pillars:
+1. The Stigmergic Memory Layer (CRDTs): Data is written to EPC Gen2 Passive UHF RFID tags. The payload is strictly compressed into a 16-byte Conflict-Free Replicated Data Type (CRDT) containing: Timestamp (4B), X_offset (3B), Y_offset (3B), Event_Class (2B), and Probability of Detection (4B).
+
+2. The Outside Network Area (ONA) Gateway: To strictly isolate the inner and outer networks, battery-powered ESP32 LoRa "Strong Nodes" act as air-gapped relays at the rubble entrance. Writers burst data via TCP. The ONA authenticates the payload using HMAC-SHA256, translates the local Cartesian SLAM coordinates into WGS84 GPS (Lat/Lon) via an equirectangular projection, and forwards it to the Command Post via MQTT-over-WebSockets.
+
+3. Run-Time Assurance (RTA) & Bayesian Navigation: The Writer's Edge AI is wrapped in a BehaviorTree.CPP RTA Simplex filter. If the robot travels 10m or operates for 30s without dropping a tag, the RTA halts the chassis and forces a marker drop. When Executors enter, they do not rely on continuous odometry; instead, reading an RFID tag injects a global pose-prior into the nav2_amcl particle filter, mathematically zeroing SLAM drift.
+
+4. Dynamic Staleness Engine: The Command Post (React.js/Node.js) ages incoming data. The system applies an exponential decay function (PoD = PoD_initial * e^(-lambda * dt)) based on event type. On the UI, this dynamically expands an "Uncertainty Ellipse" around the target, alerting commanders to stale intelligence and algorithmically triggering "Re-Scout" directives.
