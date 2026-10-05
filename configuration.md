@@ -62,3 +62,13 @@ The override sets `EXECUTOR_MODE=ros`, `SIM_ONA=0`, `NETWORK_BEACONS=1`,
 `MQTT_HOST=mosquitto`, `NETWORK_HOST=strong-node`. ROS receives the same private
 HMAC key; no secret is sent to the frontend. Workspace `.dockerignore` excludes
 secret files in the ROS build context; explicit COPY selects only source files.
+
+## Migrated simulator settings
+
+`AUTO_DISPATCH` defaults to `1` in both ROS deployments. Set it to `0` for manual
+assignment. `SIM_SEED` is an optional integer. `SIM_COMMANDS=1` is set only on the demo backend;
+it enables zone editing. Reset map is available in the integrated deployment too,
+clearing the current session while preserving stored beacon records.
+`shared/zone.json` is the canonical polygon config; ROS images set `ZONE_FILE` to the
+copied config. Dashboard ellipse controls are build-time Vite values. See
+[simulation documentation](../web-app/docs/simulation.md) for semantics and limitations.

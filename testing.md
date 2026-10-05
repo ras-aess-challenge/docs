@@ -59,3 +59,9 @@ image. The separate full ROS integration is exercised by `test-ros.sh`.
 See [ros-integration.md](ros-integration.md) for the current complete deployment,
 Foxglove connection, executor ownership, health checks and mode switching. Run
 `./docker/test-ros.sh` from the workspace root for live ROS/Foxglove/mission checks.
+
+## Migrated simulation workflow
+
+Run `./docker/test-simulation.sh` from the workspace root. It verifies automatic mission
+completion, reset notifications to two live dashboards, live zone editing and the zone
+in a late client's sync snapshot. The helper creates and cleans an isolated project.
